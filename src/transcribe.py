@@ -3,15 +3,15 @@ import os
 import uuid
 import time
 import json
-from urllib.parse import urlparse
-
+import logging
 
 def move_file_to_bucket(file_dir, bucket_name):
-    print(f"[BACKEND] move {file_dir} to the bucket {bucket_name}.")
+    logging.info(f"Move {file_dir} to the bucket {bucket_name}.")
     client = boto3.resource('s3')
     bucket = client.Bucket(bucket_name)
     bucket.upload_file(file_dir, os.path.basename(file_dir))
-    return "s3://" + bucket_name + "/" + os.path.basename(file_dir)
+    # return "s3://" + bucket_name + "/" + os.path.basename(file_dir)
+    return os.path.basename(file_dir)
 
 
 def remove_file_from_bucket(key, bucket_name):
@@ -29,7 +29,7 @@ def remove_file_from_bucket(key, bucket_name):
 
 
 def read_and_delete_transcript_from_s3(key, bucket_name):
-    print(f"[BACKEND] Read json file {key} from the bucket {bucket_name}.")
+    logging.info(f"Read json file {key} from the bucket {bucket_name}.")
     client = boto3.client('s3')
     result = client.get_object(Bucket=bucket_name, Key=key)
     response = json.loads(result["Body"].read().decode())
@@ -39,10 +39,10 @@ def read_and_delete_transcript_from_s3(key, bucket_name):
 
 def transcribe_file(file_dir, bucket_name, language="en-US"):
     job_name = str(uuid.uuid4())
-    print(
-        f"[BACKEND] Start the transcript job {job_name} with the file from {file_dir}.")
+    logging.info(
+        f"Start the transcript job {job_name} with the file from {file_dir}.")
 
-    voice_file_uri = move_file_to_bucket(file_dir, bucket_name)
+    file_key = move_file_to_bucket(file_dir, bucket_name)
 
     client = boto3.client('transcribe', region_name="eu-central-1")
     response = client.start_transcription_job(
@@ -50,7 +50,7 @@ def transcribe_file(file_dir, bucket_name, language="en-US"):
         LanguageCode=language,
         MediaFormat='ogg',
         Media={
-            'MediaFileUri': voice_file_uri,
+            'MediaFileUri': "/".join(["s3:/", bucket_name, file_key]),
         },
         OutputBucketName=bucket_name
     )
@@ -61,9 +61,11 @@ def transcribe_file(file_dir, bucket_name, language="en-US"):
             break
         time.sleep(1)
 
+    logging.info(
+        f"The transcript job {job_name} is done.")
+
     transcript = read_and_delete_transcript_from_s3(
         job_name + ".json", bucket_name)
 
-    p = urlparse(voice_file_uri, allow_fragments=False)
-    remove_file_from_bucket(p.path[1:], p.netloc)
+    remove_file_from_bucket(file_key, bucket_name)
     return transcript

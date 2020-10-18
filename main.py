@@ -1,11 +1,12 @@
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
-from telegram import Update
-import time
-import os
-import uuid
 import json
+import os
+import time
+import uuid
+import logging
 
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from src.transcribe import transcribe_file
+
 
 def start(update, context):
     message = ("Hi! I'm the Transcribe Bot. "
@@ -14,10 +15,11 @@ def start(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id,
                              text=message)
 
+
 def audio2text(update, context):
     # download the voice file from the message
-    print(
-        f"[BACKEND] Download voice file trom the message {update.message.message_id}")
+    logging.info(
+        f"Download voice file trom message {update.message.message_id}.")
     if not os.path.exists('tmp'):
         os.makedirs('tmp')
     voice_path = os.path.join(".", "tmp", str(uuid.uuid4()) + ".ogg")
@@ -35,10 +37,10 @@ def audio2text(update, context):
     # send message
     if transcript:
         context.bot.send_message(chat_id=update.effective_chat.id,
-                                text=transcript,
-                                reply_to_message_id=update.message.message_id)
+                                 text=transcript,
+                                 reply_to_message_id=update.message.message_id)
     else:
-        print("[ERROR] Voice message can't be transcribed")
+        logging.error("Voice message can't be transcribed")
 
 
 # create updater
@@ -46,6 +48,17 @@ if __name__ == "__main__":
     # read config file form ".token"
     with open("config.json", "rb") as f:
         config = json.load(f)
+
+    if not os.path.exists('log'):
+        os.makedirs('log')
+    logging.basicConfig(level=logging.DEBUG,
+                        format="[%(levelname)s] %(asctime)s - %(name)s : %(message)s",
+                        handlers=[
+                            logging.FileHandler(
+                                "log/" + "debug.log", encoding="utf-8"),
+                            logging.StreamHandler()
+                        ]
+                        )
 
     updater = Updater(token=config["bot-token"], use_context=True)
     dispatcher = updater.dispatcher
