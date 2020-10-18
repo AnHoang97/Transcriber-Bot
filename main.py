@@ -54,8 +54,11 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG,
                         format="[%(levelname)s] %(asctime)s - %(name)s : %(message)s",
                         handlers=[
-                            logging.FileHandler(
-                                "log/" + "debug.log", encoding="utf-8"),
+                            logging.handlers.TimedRotatingFileHandler(
+                                "log/" + "debug.log", 
+                                encoding="utf-8",
+                                when="midnight",
+                            ),
                             logging.StreamHandler()
                         ]
                         )
