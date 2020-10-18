@@ -1,14 +1,14 @@
 import json
 import os
-import time
 import uuid
 import logging
 
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+from telegram import Update
 from src.transcribe import transcribe_file
 
 
-def start(update, context):
+def start(update: Update, context: CallbackContext) -> None:
     message = ("Hi! I'm the Transcribe Bot. "
                "I will transcribe all voice messages sent in this chat."
                "You can find the code for me at https://github.com/AnHoang97/Transcriber-Bot")
@@ -16,7 +16,7 @@ def start(update, context):
                              text=message)
 
 
-def audio2text(update, context):
+def audio2text(update: Update, context: CallbackContext) -> None:
     # download the voice file from the message
     logging.info(
         f"Download voice file trom message {update.message.message_id}.")
