@@ -7,6 +7,13 @@ import json
 
 from src.transcribe import transcribe_file
 
+def start(update, context):
+    message = ("Hi! I'm the Transcribe Bot. "
+               "I will transcribe all voice messages sent in this chat."
+               "You can find the code for me at https://github.com/AnHoang97/Transcriber-Bot")
+    context.bot.send_message(chat_id=update.effective_chat.id,
+                             text=message)
+
 def audio2text(update, context):
     # download the voice file from the message
     print(
@@ -32,7 +39,6 @@ def audio2text(update, context):
                                 reply_to_message_id=update.message.message_id)
     else:
         print("[ERROR] Voice message can't be transcribed")
-                        
 
 
 # create updater
@@ -44,5 +50,8 @@ if __name__ == "__main__":
     updater = Updater(token=config["bot-token"], use_context=True)
     dispatcher = updater.dispatcher
     dispatcher.bot_data.update(config)
+
     dispatcher.add_handler(MessageHandler(Filters.voice, audio2text))
+    dispatcher.add_handler(CommandHandler('start', start))
+
     updater.start_polling()
