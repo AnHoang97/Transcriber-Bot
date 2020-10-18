@@ -1,0 +1,5 @@
+{
+    "s3-bucket": "name-of-s3-bucket",
+    "bot-token": "token-of-telegram-bot",
+    "language": "en-US"
+}
