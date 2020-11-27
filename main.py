@@ -45,10 +45,6 @@ def audio2text(update: Update, context: CallbackContext) -> None:
 
 # create updater
 if __name__ == "__main__":
-    # read config file form ".token"
-    with open("config.json", "rb") as f:
-        config = json.load(f)
-
     if not os.path.exists('log'):
         os.makedirs('log')
     logging.basicConfig(level=logging.DEBUG,
@@ -63,9 +59,12 @@ if __name__ == "__main__":
                         ]
                         )
 
-    updater = Updater(token=config["bot-token"], use_context=True)
+    updater = Updater(token=os.environ['TRANSCRIBEBOT_TELEGRAM_TOKEN'], use_context=True)
     dispatcher = updater.dispatcher
-    dispatcher.bot_data.update(config)
+    dispatcher.bot_data.update({
+        "s3-bucket": os.environ['TRANSCRIBEBOT_AWS_S3_BUCKET'],
+        "language": os.environ['TRANSCRIBEBOT_LANGUAGE'],
+    })
 
     dispatcher.add_handler(MessageHandler(Filters.voice, audio2text))
     dispatcher.add_handler(CommandHandler('start', start))

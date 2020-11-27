@@ -1,5 +1,6 @@
 # Prerequisites 
 
+You will need `docker` in order to run the bot.
 ## 1. Telegram Token
 
 Create a new bot by talking to [Bot Father](https://t.me/botfather) and remenber your authorization token. This is described in more detail [here](https://core.telegram.org/bots#6-botfather).
@@ -10,41 +11,16 @@ Create a new bot by talking to [Bot Father](https://t.me/botfather) and remenber
 
 A official guide for both steps is given [here](https://docs.aws.amazon.com/medialive/latest/ug/setup-user-step-groups.html) and [here](https://docs.aws.amazon.com/medialive/latest/ug/setup-user-step-create-user.html).
 
-## 3. Configure AWS
-You need to configure the aws cli with following command.
-
-```
-[user@home] $ aws configure
-AWS Access Key ID [None]: XXXXXXXXXXXXXXXXXXX
-AWS Secret Access Key [None]: XXXXXXXXXXXXXXXXX
-Default region name [None]:  enter
-Default output format [None]:  enter
-```
-
 ## 4. Create a s3 bucket
 
 Create a s3 buckets following the official AWS [instructions](https://docs.aws.amazon.com/AmazonS3/latest/user-guide/create-bucket.html) and rememeber the name.
 
-## 5. Complete config.json
+## 5. Complete Dockerfile
 
-Fill all required data into the `config.json`.
-```
-{
-    "s3-bucket": "name-of-s3-bucket",
-    "bot-token": "token-of-telegram-bot",
-    "language": "en-US"
-}
-```
+Fill all required keys into the `Dockerfile`
 
-## 5. Make venv
+## 6. Run Container
 
 ```
-$ python -m venv env
-$ pip install -r requirements.txt
-$ source ./env/bin/activate
+make run
 ```
-
-## 6. Run bot
- ```
- $ python ./main.py
- ```

@@ -1,13 +1,32 @@
-FROM python:3
+# For more information, please refer to https://aka.ms/vscode-docker-python
+FROM python:3.8-slim-buster
 
-# set a directory for the app
-WORKDIR /usr/src/app
+# Keeps Python from generating .pyc files in the container
+ENV PYTHONDONTWRITEBYTECODE=1
 
-# copy all the files to the container
-COPY . .
+# Turns off buffering for easier container logging
+ENV PYTHONUNBUFFERED=1
 
-# install dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+#### conig env variables  ########################################################
+ENV AWS_ACCESS_KEY_ID=
+ENV AWS_SECRET_ACCESS_KEY=
+ENV AWS_DEFAULT_REGION=
 
-# run the command
-CMD ["python", "./main.py"]
+ENV TRANSCRIBEBOT_AWS_S3_BUCKET=
+ENV TRANSCRIBEBOT_TELEGRAM_TOKEN=
+ENV TRANSCRIBEBOT_LANGUAGE=
+##################################################################################
+
+# Install pip requirements
+ADD requirements.txt .
+RUN python -m pip install -r requirements.txt
+
+WORKDIR /app
+ADD . /app
+
+# Switching to a non-root user, please refer to https://aka.ms/vscode-docker-python-user-rights
+RUN useradd appuser && chown -R appuser /app
+USER appuser
+
+# During debugging, this entry point will be overridden. For more information, please refer to https://aka.ms/vscode-docker-python-debug
+CMD ["python", "main.py"]
