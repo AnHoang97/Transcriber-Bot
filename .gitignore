@@ -1,6 +1,6 @@
 .token
-.vscode
 *.ogg
+.envrc
 
 #### python stuff below ####
 # from https://github.com/github/gitignore/blob/master/Python.gitignore

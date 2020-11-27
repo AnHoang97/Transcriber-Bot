@@ -1,6 +1,6 @@
 VENV=env/bin/
 
-run:
+run: install
 	$(VENV)python main.py
 
 install:
